@@ -1,0 +1,118 @@
+group 'net.eraga.rxusb'
+version '1.2.0'
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.2.0"
+        ndk {
+            abiFilters 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+            // let gradle pack the shared library into apk
+            jniLibs.srcDirs = ['./libs/libusb-1.0']
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "org.apache.commons:commons-lang3:3.4"
+
+    testCompile 'junit:junit:4.12'
+}
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    archives {
+        extendsFrom configurations.default
+    }
+}
+
+signing {
+    required { hasProperty("release") && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+
+            repository(url: "http://nexus.eraga.net/content/repositories/public-releases/") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.project {
+                name 'Android Usb4Java Library port'
+                packaging 'aar'
+                description 'Usb4Java library with libusb binaries for Android platform'
+                url 'https://github.com/eraga/rxusb-android/usb4java-android/'
+
+                scm {
+                    url 'scm:git@github.com:eraga/rxusb-android.git'
+                    connection 'scm:git@github.com:eraga/rxusb-android.git'
+                    developerConnection 'scm:git@github.com:eraga/rxusb-android.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'kayahr'
+                        name 'Klaus Reimer'
+                        email 'k@ailis.de'
+                    }
+                    developer {
+                        id 'llongi'
+                        name 'Luca Longinotti'
+                        email 'l@longi.li'
+                    }
+                    developer {
+                        id 'tntclaus'
+                        name 'Klaus Schwartz'
+                        email 'tntclaus@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}

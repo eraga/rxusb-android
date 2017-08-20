@@ -1,0 +1,9 @@
+rootProject.name = 'rxusb-android'
+include ':usb4java-android', ':example', ':libusb-android'
+
+include ':libusb'
+include ':core'
+
+
+project(':libusb').projectDir = new File(settingsDir, '../rxusb/libusb')
+project(':core').projectDir = new File(settingsDir, '../rxusb/core')

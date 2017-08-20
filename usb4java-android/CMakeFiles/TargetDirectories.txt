@@ -1,0 +1,1 @@
+/Volumes/MacintoshHD/Work/libusb/rxusb-android/usb4java-android/CMakeFiles/LibUsb.dir

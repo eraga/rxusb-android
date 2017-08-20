@@ -1,0 +1,102 @@
+group 'net.eraga.rxusb'
+version "$version"
+
+apply plugin: 'com.android.library'
+apply plugin: 'net.researchgate.release'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "$version"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    maven {
+        url 'http://nexus.eraga.net/content/repositories/public-releases/'
+    }
+}
+
+dependencies {
+    compile("net.eraga.rxusb:libusb:1.0.0") {
+        exclude group: 'org.usb4java'
+    }
+
+//    compile (project(":libusb")) {
+//        exclude group: 'org.usb4java'
+//    }
+
+    compile "net.eraga.rxusb:usb4java-android:1.2.0"
+}
+
+configurations {
+    archives {
+        extendsFrom configurations.default
+    }
+}
+
+signing {
+    required { hasProperty("release") && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+
+            repository(url: "http://nexus.eraga.net/content/repositories/public-releases/") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.project {
+                name 'RxUsb libusb for android wrapper'
+                packaging 'aar'
+                description 'RxUsb is a cross-platform USB facade library'
+                url 'https://github.com/eraga/rxusb-android/libusb-android/'
+
+                scm {
+                    url 'scm:git@github.com:eraga/rxusb-android.git'
+                    connection 'scm:git@github.com:eraga/rxusb-android.git'
+                    developerConnection 'scm:git@github.com:eraga/rxusb-android.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'tntclaus'
+                        name 'Klaus Schwartz'
+                        email 'tntclaus@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
