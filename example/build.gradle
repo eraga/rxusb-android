@@ -30,7 +30,7 @@ dependencies {
     })
 
 
-    compile project(":libusb-android")
+    compile "net.eraga.rxusb:libusb-android:1.0.1"
 
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
