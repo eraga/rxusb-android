@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile("net.eraga.rxusb:libusb:1.0.0") {
+    compile("net.eraga.rxusb:libusb:1.0.1") {
         exclude group: 'org.usb4java'
     }
 
